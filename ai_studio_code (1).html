@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NexLive | Premium Live TV</title>
+    <!-- HLS.js for advanced stream parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================================================
+           1. CSS VARIABLES & THEME SETTINGS (NexLive Identity)
+           ================================================== */
+        :root {
+            --bg-base: #000000;
+            --bg-surface: #080808;
+            --bg-card: #111111;
+            --bg-card-hover: #151515;
+            --accent-red: #E50914;
+            --accent-red-hover: #FF1F2D;
+            --text-main: #FFFFFF;
+            --text-muted: #A0A0A0;
+            --border-radius: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ==================================================
+           2. GLOBAL RESETS & TYPOGRAPHY
+           ================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-surface);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-red);
+        }
+
+        /* ==================================================
+           3. SPLASH SCREEN (Animated SVG)
+           ================================================== */
+        #nexlive-splash {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-base);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        #nexlive-splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-logo-container {
+            width: 250px;
+            height: auto;
+            position: relative;
+        }
+
+        .splash-pulse {
+            transform-origin: center;
+            animation: pulse 2s infinite;
+        }
+
+        .splash-text-nex {
+            opacity: 0;
+            animation: fadeInRight 1s forwards 0.5s;
+        }
+        
+        .splash-text-live {
+            opacity: 0;
+            animation: fadeInLeft 1s forwards 0.5s;
+        }
+
+        .splash-loader {
+            margin-top: 40px;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #222;
+            border-top-color: var(--accent-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .dev-credit {
+            position: absolute;
+            bottom: 30px;
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: fadeIn 1s forwards 1.2s;
+        }
+
+        /* ==================================================
+           4. LAYOUT & UI COMPONENTS
+           ================================================== */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background-color: rgba(8, 8, 8, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #1a1a1a;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand svg {
+            height: 35px;
+            display: block;
+        }
+
+        .search-container input {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 20px;
+            width: 300px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-container input:focus {
+            border-color: var(--accent-red);
+            background: #222;
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        /* Video Player Section */
+        #player-section {
+            width: 100%;
+            background: #000;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+        }
+
+        /* Player Overlays */
+        .player-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            display: none;
+        }
+        .player-overlay.active {
+            display: flex;
+        }
+        .player-overlay svg {
+            width: 50px; fill: var(--accent-red); margin-bottom: 15px;
+        }
+        
+        .channel-info-bar {
+            padding: 15px 30px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .now-playing-badge {
+            background: var(--accent-red);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Channels Section */
+        #content-section {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            padding: 15px 30px;
+            overflow-x: auto;
+            border-bottom: 1px solid #1a1a1a;
+            white-space: nowrap;
+        }
+        
+        .category-btn {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .category-btn:hover { background: #222; color: #fff; }
+        .category-btn.active {
+            background: var(--accent-red);
+            color: #fff;
+            border-color: var(--accent-red);
+        }
+
+        .channel-grid-container {
+            padding: 20px 30px;
+            overflow-y: auto;
+            flex: 1;
+            position: relative;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .channel-card {
+            background: var(--bg-card);
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .channel-card:hover {
+            transform: translateY(-5px);
+            background: var(--bg-card-hover);
+            border-color: var(--accent-red);
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.2);
+        }
+
+        .channel-card.playing {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+        }
+
+        .card-logo-wrapper {
+            aspect-ratio: 16 / 9;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .card-logo-wrapper img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card-logo-wrapper img.error {
+            display: none;
+        }
+
+        .card-info {
+            padding: 12px;
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-group {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        #scroll-anchor {
+            height: 20px;
+            width: 100%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        /* ==================================================
+           5. ANIMATIONS & RESPONSIVE DESIGN
+           ================================================== */
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        @media (min-width: 1024px) {
+            main { flex-direction: row; }
+            #player-section { width: 55%; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; }
+            .player-wrapper { max-width: 100%; margin: auto 0; }
+            #content-section { width: 45%; }
+        }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 15px; }
+            .search-container input { width: 100%; }
+            .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+            .channel-grid-container { padding: 15px; }
+            .categories { padding: 10px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================================================
+         SPLASH SCREEN (Animated SVG & Loader)
+         ================================================== -->
+    <div id="nexlive-splash">
+        <div class="splash-logo-container">
+            <svg viewBox="0 0 300 100" width="100%" height="100%">
+                <!-- Outer Pulse -->
+                <circle cx="50" cy="50" r="35" fill="none" stroke="#E50914" stroke-width="2" class="splash-pulse" opacity="0.5"/>
+                <circle cx="50" cy="50" r="25" fill="#E50914" />
+                <!-- Play Icon -->
+                <polygon points="42,35 42,65 65,50" fill="#FFFFFF" />
+                <!-- NexLive Text -->
+                <text x="100" y="62" font-family="'Inter', sans-serif" font-weight="800" font-size="42" fill="#FFFFFF" class="splash-text-nex">Nex<tspan fill="#E50914" class="splash-text-live">Live</tspan></text>
+            </svg>
+        </div>
+        <div class="splash-loader"></div>
+        <div class="dev-credit">Developed by AHR</div>
+    </div>
+
+    <!-- ==================================================
+         MAIN APP CONTAINER
+         ================================================== -->
+    <div id="app-container" style="display: none;">
+        
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <svg viewBox="0 0 200 60">
+                    <circle cx="30" cy="30" r="15" fill="#E50914" />
+                    <polygon points="26,22 26,38 38,30" fill="#FFFFFF" />
+                    <text x="55" y="40" font-family="'Inter', sans-serif" font-weight="800" font-size="28" fill="#FFFFFF">Nex<tspan fill="#E50914">Live</tspan></text>
+                </svg>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search channels..." autocomplete="off">
+            </div>
+        </header>
+
+        <main>
+            <!-- Player Section -->
+            <section id="player-section">
+                <div class="player-wrapper" id="player-wrapper">
+                    <!-- Standard HTML5 Video with Custom Controls Wrapper via Browser -->
+                    <video id="video-player" controls playsinline></video>
+                    
+                    <!-- Player Error/Loading Overlay -->
+                    <div class="player-overlay" id="player-overlay">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        <h3 id="overlay-title">Stream Unavailable</h3>
+                        <p id="overlay-msg" style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">Please try another channel</p>
+                    </div>
+                </div>
+                
+                <div class="channel-info-bar">
+                    <span class="now-playing-badge" id="now-playing-badge" style="display: none;">Live</span>
+                    <div id="current-channel-name" style="font-weight: 600; font-size: 18px;">Select a channel to play</div>
+                </div>
+            </section>
+
+            <!-- Channels Section -->
+            <section id="content-section">
+                <div class="categories" id="categories-container">
+                    <!-- Categories injected here -->
+                </div>
+                <div class="channel-grid-container" id="grid-container">
+                    <div class="channel-grid" id="channel-grid">
+                        <!-- Channels injected here -->
+                    </div>
+                    <div id="scroll-anchor"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==================================================
+         APPLICATION LOGIC (Vanilla JS)
+         ================================================== -->
+    <script>
+        // --- 1. CONFIGURATION & CONSTANTS ---
+        const PLAYLIST_URL = 'https://iptv-org.github.io/iptv/index.m3u';
+        const ORDER_JSON_URL = 'channel-order.json';
+        const TARGET_ORDER_KEY = PLAYLIST_URL;
+        const CHUNK_SIZE = 50; // For Infinite Scrolling
+
+        // --- 2. STATE MANAGEMENT ---
+        let allParsedChannels = [];
+        let finalOrderedList = [];
+        let currentDisplayList = [];
+        let categoriesSet = new Set(['All']);
+        
+        let activeCategory = 'All';
+        let searchQuery = '';
+        let renderIndex = 0;
+        let hlsInstance = null;
+        let currentPlayingUrl = null;
+
+        // --- 3. DOM ELEMENTS ---
+        const splashEl = document.getElementById('nexlive-splash');
+        const appContainer = document.getElementById('app-container');
+        const gridEl = document.getElementById('channel-grid');
+        const scrollAnchor = document.getElementById('scroll-anchor');
+        const categoriesContainer = document.getElementById('categories-container');
+        const searchInput = document.getElementById('search-input');
+        
+        const videoPlayer = document.getElementById('video-player');
+        const playerOverlay = document.getElementById('player-overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const currentChannelNameEl = document.getElementById('current-channel-name');
+        const badgeEl = document.getElementById('now-playing-badge');
+
+        // --- 4. INITIALIZATION ---
+        async function initApp() {
+            // Fallback timeout to ensure splash disappears if network hangs
+            const splashTimeout = setTimeout(showApp, 12000);
+
+            try {
+                // Fetch data concurrently for performance
+                const [m3uResponse, jsonResponse] = await Promise.allSettled([
+                    fetch(PLAYLIST_URL),
+                    fetch(ORDER_JSON_URL)
+                ]);
+
+                if (m3uResponse.status === 'rejected' || !m3uResponse.value.ok) {
+                    throw new Error("Failed to load M3U playlist");
+                }
+
+                const m3uText = await m3uResponse.value.text();
+                parseM3U(m3uText);
+
+                let orderArray = [];
+                if (jsonResponse.status === 'fulfilled' && jsonResponse.value.ok) {
+                    try {
+                        const jsonData = await jsonResponse.value.json();
+                        if (jsonData[TARGET_ORDER_KEY] && Array.isArray(jsonData[TARGET_ORDER_KEY])) {
+                            orderArray = jsonData[TARGET_ORDER_KEY];
+                        } else {
+                            console.warn("JSON loaded but target key not found. Using default M3U order.");
+                        }
+                    } catch (e) {
+                        console.warn("Invalid JSON format in channel-order.json.");
+                    }
+                } else {
+                    console.warn("channel-order.json not found or inaccessible (CORS). Continuing with default order.");
+                }
+
+                applyOrdering(orderArray);
+                
+                // Initialize UI
+                buildCategories();
+                applyFiltersAndRender();
+                
+                clearTimeout(splashTimeout);
+                setTimeout(showApp, 800); // Give a brief moment for DOM painting
+
+            } catch (error) {
+                console.error("Initialization Error:", error);
+                alert("Critical Error: Unable to load playlist. Please ensure you are connected to the internet and running on a local web server.");
+                clearTimeout(splashTimeout);
+                showApp();
+            }
+        }
+
+        function showApp() {
+            splashEl.classList.add('hidden');
+            appContainer.style.display = 'flex';
+            setTimeout(() => { splashEl.style.display = 'none'; }, 600);
+        }
+
+        // --- 5. DATA PARSING & SORTING ---
+        function parseM3U(m3u) {
+            const lines = m3u.split('\n');
+            let currentChannel = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                if (line.startsWith('#EXTINF:')) {
+                    currentChannel = {
+                        id: extractAttr(line, 'tvg-id'),
+                        name: extractAttr(line, 'tvg-name'),
+                        logo: extractAttr(line, 'tvg-logo'),
+                        group: extractAttr(line, 'group-title') || 'Uncategorized',
+                        rawName: line.split(',').pop().trim() // Fallback name
+                    };
+                    if (!currentChannel.name) currentChannel.name = currentChannel.rawName;
+                    
+                    // Add to categories
+                    if (currentChannel.group && currentChannel.group !== 'Undefined') {
+                        categoriesSet.add(currentChannel.group);
+                    }
+                } else if (!line.startsWith('#') && currentChannel) {
+                    currentChannel.url = line;
+                    allParsedChannels.push(currentChannel);
+                    currentChannel = null;
+                }
+            }
+        }
+
+        function extractAttr(line, attr) {
+            const regex = new RegExp(`${attr}="([^"]*)"`, 'i');
+            const match = line.match(regex);
+            return match ? match[1] : '';
+        }
+
+        function normalizeString(str) {
+            if (!str) return '';
+            return str.toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        function applyOrdering(orderArray) {
+            if (!orderArray || orderArray.length === 0) {
+                finalOrderedList = [...allParsedChannels];
+                return;
+            }
+
+            const ordered = [];
+            const remaining = [...allParsedChannels];
+
+            // Match logic prioritizing exact matches
+            orderArray.forEach(orderName => {
+                const target = normalizeString(orderName);
+                
+                // Find first match
+                const matchIndex = remaining.findIndex(c => 
+                    normalizeString(c.name) === target || 
+                    normalizeString(c.rawName) === target ||
+                    (c.id && normalizeString(c.id) === target)
+                );
+
+                if (matchIndex !== -1) {
+                    ordered.push(remaining[matchIndex]);
+                    remaining.splice(matchIndex, 1); // Remove to prevent duplicates
+                }
+            });
+
+            // Concat remaining unmatched channels deterministically at the end
+            finalOrderedList = ordered.concat(remaining);
+        }
+
+        // --- 6. UI RENDERING & FILTERING ---
+        function buildCategories() {
+            // Sort categories alphabetically, keeping 'All' at front
+            const sortedCats = Array.from(categoriesSet).sort((a, b) => {
+                if (a === 'All') return -1;
+                if (b === 'All') return 1;
+                return a.localeCompare(b);
+            });
+
+            const frag = document.createDocumentFragment();
+            sortedCats.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `category-btn ${cat === 'All' ? 'active' : ''}`;
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeCategory = cat;
+                    applyFiltersAndRender();
+                };
+                frag.appendChild(btn);
+            });
+            categoriesContainer.appendChild(frag);
+        }
+
+        function applyFiltersAndRender() {
+            // Filter based on Search and Category
+            const query = normalizeString(searchQuery);
+            
+            currentDisplayList = finalOrderedList.filter(c => {
+                const matchCat = activeCategory === 'All' || c.group === activeCategory;
+                const matchSearch = query === '' || 
+                                    normalizeString(c.name).includes(query) || 
+                                    normalizeString(c.group).includes(query);
+                return matchCat && matchSearch;
+            });
+
+            // Reset grid and lazy load index
+            gridEl.innerHTML = '';
+            renderIndex = 0;
+            
+            if (currentDisplayList.length === 0) {
+                gridEl.innerHTML = `<div class="empty-state">No channels found for "${searchQuery}"</div>`;
+                return;
+            }
+            
+            renderChunk();
+        }
+
+        function renderChunk() {
+            if (renderIndex >= currentDisplayList.length) return;
+
+            const fragment = document.createDocumentFragment();
+            const endIndex = Math.min(renderIndex + CHUNK_SIZE, currentDisplayList.length);
+
+            for (let i = renderIndex; i < endIndex; i++) {
+                const channel = currentDisplayList[i];
+                
+                const card = document.createElement('div');
+                card.className = 'channel-card';
+                // Highlight currently playing card
+                if (currentPlayingUrl === channel.url) card.classList.add('playing');
+                
+                card.onclick = () => {
+                    document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('playing'));
+                    card.classList.add('playing');
+                    playStream(channel);
+                };
+
+                const logoUrl = channel.logo || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNTU1IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBMb2dvPC90ZXh0Pjwvc3ZnPg==';
+
+                card.innerHTML = `
+                    <div class="card-logo-wrapper">
+                        <img src="${logoUrl}" alt="${channel.name}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTFhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNTU1IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBMb2dvPC90ZXh0Pjwvc3ZnPg=='">
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title">${channel.name}</div>
+                        <div class="card-group">${channel.group}</div>
+                    </div>
+                `;
+                fragment.appendChild(card);
+            }
+
+            gridEl.appendChild(fragment);
+            renderIndex = endIndex;
+        }
+
+        // --- 7. INFINITE SCROLL (Intersection Observer) ---
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                renderChunk();
+            }
+        }, { rootMargin: '200px' });
+        
+        observer.observe(scrollAnchor);
+
+        // --- 8. SEARCH DEBOUNCE ---
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchQuery = e.target.value;
+                applyFiltersAndRender();
+            }, 300);
+        });
+
+        // --- 9. ADVANCED VIDEO PLAYER LOGIC ---
+        function playStream(channel) {
+            currentPlayingUrl = channel.url;
+            currentChannelNameEl.textContent = channel.name;
+            badgeEl.style.display = 'inline-block';
+            hidePlayerError();
+
+            // Destroy existing HLS instance if any
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+
+            videoPlayer.pause();
+            videoPlayer.removeAttribute('src');
+            videoPlayer.load();
+
+            if (Hls.isSupported() && channel.url.includes('.m3u8')) {
+                // Use HLS.js for m3u8 streams
+                hlsInstance = new Hls({
+                    capLevelToPlayerSize: true,
+                    maxMaxBufferLength: 30
+                });
+                
+                hlsInstance.loadSource(channel.url);
+                hlsInstance.attachMedia(videoPlayer);
+                
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoPlayer.play().catch(e => console.log("Autoplay blocked"));
+                });
+
+                hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                showPlayerError("Network Error", "Stream is currently unreachable.");
+                                hlsInstance.destroy();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                hlsInstance.recoverMediaError();
+                                break;
+                            default:
+                                showPlayerError("Playback Error", "Failed to decode stream.");
+                                hlsInstance.destroy();
+                                break;
+                        }
+                    }
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native Safari support
+                videoPlayer.src = channel.url;
+                videoPlayer.addEventListener('loadedmetadata', function() {
+                    videoPlayer.play().catch(e => console.log("Autoplay blocked"));
+                });
+                videoPlayer.onerror = () => showPlayerError("Playback Error", "Stream format not supported or offline.");
+            } else {
+                // Standard direct MP4/MKV fallback
+                videoPlayer.src = channel.url;
+                videoPlayer.play().catch(e => console.log("Autoplay blocked"));
+                videoPlayer.onerror = () => showPlayerError("Format Error", "Your browser does not support this stream format.");
+            }
+        }
+
+        function showPlayerError(title = "Stream Unavailable", msg = "Please try another channel.") {
+            playerOverlay.classList.add('active');
+            overlayTitle.textContent = title;
+            document.getElementById('overlay-msg').textContent = msg;
+            badgeEl.style.background = "#555";
+            badgeEl.textContent = "Offline";
+        }
+
+        function hidePlayerError() {
+            playerOverlay.classList.remove('active');
+            badgeEl.style.background = "var(--accent-red)";
+            badgeEl.textContent = "Live";
+        }
+
+        // --- 10. BOOTSTRAP ---
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
