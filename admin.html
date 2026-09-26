@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NexLive — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#000000;--bg-1:#080808;--bg-2:#0D0D0D;--bg-3:#111111;--bg-4:#171717;--bg-5:#1c1c1c;
+    --red:#E50914;--red-bright:#FF1F2D;--red-deep:#8C0710;--white:#FFFFFF;--grey:#A0A0A0;
+    --green:#1DB954;--amber:#E5A000;
+    --border: rgba(255,255,255,0.08);--header-h: 60px;
+    --safe-t: env(safe-area-inset-top, 0px);--safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg-0);color:var(--white);
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--red);color:var(--white);}
+  ::-webkit-scrollbar{width:8px;height:8px;} ::-webkit-scrollbar-track{background:var(--bg-1);}
+  ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:8px;} ::-webkit-scrollbar-thumb:hover{background:var(--red);}
+  button{font-family:inherit;cursor:pointer;} input,textarea,select{font-family:inherit;}
+  img{max-width:100%;}
+
+  .logo-svg{display:block;height:24px;width:auto;filter:drop-shadow(0 2px 6px rgba(229,9,20,0.35));}
+
+  header{position:sticky;top:0;z-index:60;height:calc(var(--header-h) + var(--safe-t));padding-top:var(--safe-t);
+    background:rgba(8,8,8,0.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:12px;padding-left:16px;padding-right:16px;}
+  .brand{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+  .brand .tag{font-size:11px;color:var(--grey);border:1px solid var(--border);padding:2px 8px;border-radius:20px;margin-left:2px;}
+  .header-spacer{flex:1;}
+  .conn-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grey);border:1px solid var(--border);
+    padding:6px 10px;border-radius:20px;flex-shrink:0;}
+  .conn-dot{width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0;}
+  .conn-pill.ok .conn-dot{background:var(--green);box-shadow:0 0 0 3px rgba(29,185,84,.2);}
+  .conn-pill.bad .conn-dot{background:var(--red-bright);box-shadow:0 0 0 3px rgba(255,31,45,.2);}
+  .btn{border:1px solid var(--border);background:var(--bg-3);color:var(--white);padding:9px 16px;border-radius:9px;
+    font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px;transition:.15s;white-space:nowrap;}
+  .btn:hover{border-color:#3a3a3a;background:var(--bg-4);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-primary{background:var(--red);border-color:var(--red);}
+  .btn-primary:hover{background:var(--red-bright);border-color:var(--red-bright);}
+  .btn-primary:disabled{background:var(--bg-3);border-color:var(--border);}
+  .btn-ghost{background:none;} .btn-ghost:hover{background:var(--bg-3);}
+  .btn-danger{color:#ff6b74;} .btn-danger:hover{background:rgba(229,9,20,.12);border-color:rgba(229,9,20,.4);}
+  .btn-sm{padding:6px 11px;font-size:12px;border-radius:7px;}
+  .btn-icon{width:32px;height:32px;padding:0;justify-content:center;border-radius:7px;}
+
+  #shell{max-width:1180px;margin:0 auto;padding:20px 16px calc(60px + var(--safe-b));}
+
+  .banner{display:none;align-items:center;gap:10px;background:linear-gradient(90deg, rgba(229,150,0,.14), rgba(229,150,0,.03));
+    border:1px solid rgba(229,150,0,.35);color:#f0c469;padding:11px 14px;border-radius:10px;font-size:12.5px;margin-bottom:16px;}
+  .banner.show{display:flex;}
+  .banner b{color:#fff;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px;}
+  .stat-card{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+  .stat-card .n{font-size:22px;font-weight:800;} .stat-card .l{font-size:11.5px;color:#777;margin-top:2px;}
+
+  details.settings{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;margin-bottom:18px;overflow:hidden;}
+  details.settings summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:13.5px;}
+  details.settings summary::-webkit-details-marker{display:none;}
+  details.settings summary .chev{margin-left:auto;color:#666;transition:transform .2s;}
+  details.settings[open] summary .chev{transform:rotate(90deg);}
+  .settings-body{padding:4px 16px 18px;border-top:1px solid var(--border);}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+  .field-grid .full{grid-column:1/-1;}
+  @media (max-width:640px){.field-grid{grid-template-columns:1fr;}}
+  label.f-label{display:block;font-size:12px;color:#888;margin-bottom:6px;}
+  input.f-input,textarea.f-input,select.f-input{width:100%;background:var(--bg-3);border:1px solid var(--border);color:var(--white);
+    padding:10px 12px;border-radius:8px;font-size:13.5px;outline:none;transition:border-color .15s;}
+  input.f-input:focus,textarea.f-input:focus,select.f-input:focus{border-color:var(--red);}
+  .f-hint{font-size:11.5px;color:#666;margin-top:6px;line-height:1.5;}
+  .f-hint a{color:#8bb7ff;}
+  .settings-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .search-wrap{flex:1;min-width:220px;position:relative;display:flex;align-items:center;background:var(--bg-2);
+    border:1px solid var(--border);border-radius:10px;padding:0 12px;}
+  .search-wrap svg{opacity:.5;flex-shrink:0;}
+  #search-input{flex:1;background:none;border:none;color:var(--white);padding:11px 8px;font-size:14px;outline:none;min-width:0;}
+  #search-input::placeholder{color:#666;}
+
+  .panel{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:18px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;}
+  .panel-head h2{font-size:14.5px;margin:0;font-weight:700;} .panel-head p{margin:2px 0 0;font-size:12px;color:#666;}
+  .panel-head .hgroup{display:flex;flex-direction:column;}
+
+  .ch-row{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:9px;border:1px solid transparent;}
+  .ch-row:hover{background:var(--bg-3);border-color:var(--border);}
+  .ch-row .logo{width:52px;height:34px;border-radius:6px;background:var(--bg-4);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .ch-row .logo img{width:100%;height:100%;object-fit:contain;}
+  .ch-row .logo svg{opacity:.35;}
+  .ch-row .meta{min-width:0;flex:1;}
+  .ch-row .meta .nm{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ch-row .meta .sub{font-size:11.5px;color:#666;margin-top:2px;display:flex;gap:6px;align-items:center;}
+  .badge{font-size:10.5px;padding:1px 7px;border-radius:20px;border:1px solid var(--border);color:#888;}
+  .badge.custom{color:#7fd68a;border-color:rgba(127,214,138,.3);background:rgba(127,214,138,.08);}
+  .badge.edited{color:#f0c469;border-color:rgba(240,196,105,.3);background:rgba(240,196,105,.08);}
+  .badge.top{color:var(--red-bright);border-color:rgba(229,9,20,.35);background:rgba(229,9,20,.1);}
+  .ch-row .actions{display:flex;gap:6px;flex-shrink:0;}
+  .row-empty{color:#555;font-size:13px;text-align:center;padding:30px 10px;}
+
+  .top-row{cursor:default;}
+  .top-row .rank{width:22px;text-align:center;color:#555;font-size:12px;font-weight:700;flex-shrink:0;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+  .modal-backdrop.open{display:flex;}
+  @media (min-width:640px){.modal-backdrop{align-items:center;}}
+  .modal{background:var(--bg-2);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-width:520px;
+    max-height:92vh;overflow-y:auto;padding:20px 20px calc(20px + var(--safe-b));}
+  @media (min-width:640px){.modal{border-radius:16px;}}
+  .modal h3{margin:0 0 16px;font-size:16px;}
+  .modal .prev{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px;background:var(--bg-3);border-radius:10px;}
+  .modal .prev .logo{width:64px;height:40px;border-radius:7px;background:var(--bg-4);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+  .modal .prev .logo img{width:100%;height:100%;object-fit:contain;} .modal .prev .logo svg{opacity:.3;}
+  .modal .prev .pname{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap;}
+  .modal-actions .btn{flex:1;justify-content:center;}
+  @media (min-width:480px){.modal-actions .btn{flex:none;}}
+
+  #toast-wrap{position:fixed;bottom:calc(20px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:400;
+    display:flex;flex-direction:column;gap:8px;align-items:center;width:100%;max-width:420px;padding:0 16px;}
+  .toast{background:var(--bg-4);border:1px solid var(--border);color:var(--white);padding:11px 16px;border-radius:10px;
+    font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,.4);display:flex;align-items:center;gap:9px;width:100%;
+    opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.ok{border-color:rgba(29,185,84,.4);} .toast.err{border-color:rgba(229,9,20,.5);}
+  .toast .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:#666;}
+  .toast.ok .dot{background:var(--green);} .toast.err .dot{background:var(--red-bright);}
+
+  .loading-inline{display:flex;align-items:center;gap:9px;color:#666;font-size:12.5px;padding:16px 4px;}
+  .spinner-sm{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.15);border-top-color:var(--red);animation:spin .8s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ================= LOGIN GATE ================= */
+  #lock-screen{position:fixed;inset:0;z-index:500;background:radial-gradient(ellipse at 50% 30%, #0d0000 0%, #000000 70%);
+    display:flex;align-items:center;justify-content:center;padding:20px;}
+  #lock-screen.hide{display:none;}
+  .lock-card{width:100%;max-width:340px;background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;text-align:center;}
+  .lock-card .logo-svg{height:32px;margin:0 auto 22px;}
+  .lock-card h1{font-size:15px;margin:0 0 4px;} .lock-card p{font-size:12.5px;color:#777;margin:0 0 20px;}
+  .lock-card input{width:100%;background:var(--bg-3);border:1px solid var(--border);color:var(--white);
+    padding:12px 14px;border-radius:9px;font-size:14px;outline:none;text-align:center;letter-spacing:.05em;}
+  .lock-card input:focus{border-color:var(--red);}
+  .lock-card .btn{width:100%;justify-content:center;margin-top:12px;}
+  .lock-card .err{color:#ff6b74;font-size:12px;margin-top:10px;min-height:14px;}
+  #app-root{display:none;}
+  #app-root.show{display:block;}
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div class="lock-card">
+    <svg class="logo-svg" viewBox="0 0 520 150" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(10 15)">
+        <path d="M82 28L60 0" stroke="#FF0A1A" stroke-width="10" stroke-linecap="round"/>
+        <path d="M82 28L104 0" stroke="#FF0A1A" stroke-width="10" stroke-linecap="round"/>
+        <circle cx="58" cy="0" r="7" fill="#FF0A1A"/>
+        <circle cx="106" cy="0" r="7" fill="#FF0A1A"/>
+        <rect x="15" y="28" width="135" height="92" rx="27" fill="#FF0A1A"/>
+        <rect x="34" y="47" width="97" height="54" rx="14" fill="#050505"/>
+        <path d="M75 59L75 89L103 74L75 59Z" fill="white"/>
+      </g>
+      <text x="175" y="103" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-3">
+        <tspan fill="#FFFFFF">Nex</tspan><tspan fill="#FF0A1A">Live</tspan>
+      </text>
+    </svg>
+    <h1>Admin access</h1>
+    <p>Enter the admin password to continue.</p>
+    <input type="password" id="lock-input" placeholder="Password" autocomplete="off">
+    <button class="btn btn-primary" id="lock-submit">Unlock</button>
+    <div class="err" id="lock-err"></div>
+  </div>
+</div>
+
+<div id="app-root">
+<header>
+  <div class="brand">
+    <svg class="logo-svg" viewBox="0 0 520 150" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(10 15)">
+        <path d="M82 28L60 0" stroke="#FF0A1A" stroke-width="10" stroke-linecap="round"/>
+        <path d="M82 28L104 0" stroke="#FF0A1A" stroke-width="10" stroke-linecap="round"/>
+        <circle cx="58" cy="0" r="7" fill="#FF0A1A"/>
+        <circle cx="106" cy="0" r="7" fill="#FF0A1A"/>
+        <rect x="15" y="28" width="135" height="92" rx="27" fill="#FF0A1A"/>
+        <rect x="34" y="47" width="97" height="54" rx="14" fill="#050505"/>
+        <path d="M75 59L75 89L103 74L75 59Z" fill="white"/>
+      </g>
+      <text x="175" y="103" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-3">
+        <tspan fill="#FFFFFF">Nex</tspan><tspan fill="#FF0A1A">Live</tspan>
+      </text>
+    </svg>
+    <span class="tag">Admin</span>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="conn-pill" id="conn-pill"><span class="conn-dot"></span><span id="conn-label">Not connected</span></div>
+  <button class="btn btn-primary" id="publish-btn" disabled>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span id="publish-label">Publish</span>
+  </button>
+</header>
+
+<div id="shell">
+
+  <div class="banner" id="unsaved-banner">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M12 8v5M12 16.5h.01M10.3 3.9L2.7 17.1c-.7 1.2.2 2.7 1.6 2.7h15.4c1.4 0 2.3-1.5 1.6-2.7L13.7 3.9c-.7-1.2-2.4-1.2-3.1 0z" stroke="#E5A000" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <span>You have <b id="unsaved-count">0</b> unsaved change(s) — they only go live after you hit <b>Publish</b>.</span>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card"><div class="n" id="stat-total">—</div><div class="l">Channels live on site</div></div>
+    <div class="stat-card"><div class="n" id="stat-custom">0</div><div class="l">Added by you</div></div>
+    <div class="stat-card"><div class="n" id="stat-edited">0</div><div class="l">Edited channels</div></div>
+    <div class="stat-card"><div class="n" id="stat-removed">0</div><div class="l">Hidden channels</div></div>
+    <div class="stat-card"><div class="n" id="stat-top">0</div><div class="l">Pinned to top</div></div>
+  </div>
+
+  <details class="settings" id="settings-details">
+    <summary>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 13a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V19a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H4a2 2 0 110-4h.09a1.65 1.65 0 001.51-1.08 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H10a1.65 1.65 0 001-1.51V4a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V10a1.65 1.65 0 001.51 1H20a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="1.3"/></svg>
+      GitHub connection
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="settings-body">
+      <div class="f-hint">
+        Create a GitHub <b>fine-grained personal access token</b> scoped only to this one repository, with
+        <b>Contents: Read and write</b> permission. Publishing writes straight to your repo, so GitHub Pages (or
+        wherever the site is hosted from this repo) picks up the change immediately. The token is saved only in
+        this browser's local storage — never share this admin page or your token publicly, and don't open it on a
+        shared computer.
+      </div>
+      <div class="field-grid">
+        <div><label class="f-label">Repo owner / org</label><input class="f-input" id="gh-owner" placeholder="e.g. abusaeeidx"></div>
+        <div><label class="f-label">Repo name</label><input class="f-input" id="gh-repo" placeholder="e.g. nexlive"></div>
+        <div><label class="f-label">Branch</label><input class="f-input" id="gh-branch" placeholder="main" value="main"></div>
+        <div><label class="f-label">Path to channels-data.json</label><input class="f-input" id="gh-path" placeholder="channels-data.json" value="channels-data.json"></div>
+        <div class="full"><label class="f-label">Personal access token</label><input class="f-input" id="gh-token" type="password" placeholder="github_pat_..."></div>
+      </div>
+      <div class="settings-actions">
+        <button class="btn" id="save-settings-btn">Save connection</button>
+        <button class="btn btn-ghost" id="test-connection-btn">Test connection</button>
+        <button class="btn btn-ghost btn-danger" id="clear-settings-btn">Forget token</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div class="hgroup"><h2>Pinned to top of homepage</h2><p>Drag order with the arrows — this is exactly the order visitors will see them first.</p></div>
+    </div>
+    <div id="top-list"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div class="hgroup"><h2>Channels</h2><p id="search-hint">Search across every channel on the site — playlist and custom.</p></div>
+      <button class="btn btn-primary btn-sm" id="add-channel-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        Add channel
+      </button>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7.2" stroke="currentColor" stroke-width="2.2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <input id="search-input" placeholder="Search channel name…" autocomplete="off">
+      </div>
+    </div>
+    <div id="results-list"></div>
+  </div>
+
+</div>
+
+<!-- ============== ADD/EDIT MODAL ============== -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <h3 id="modal-title">Add channel</h3>
+    <div class="prev">
+      <div class="logo" id="modal-logo-preview"></div>
+      <div class="pname" id="modal-name-preview">New channel</div>
+    </div>
+    <div class="field-grid">
+      <div class="full"><label class="f-label">Channel name</label><input class="f-input" id="f-name" placeholder="e.g. Somoy TV"></div>
+      <div class="full"><label class="f-label">Logo URL</label><input class="f-input" id="f-logo" placeholder="https://example.com/logo.png"></div>
+      <div class="full"><label class="f-label">Stream link (m3u8 / stream URL)</label><input class="f-input" id="f-url" placeholder="https://example.com/stream.m3u8"></div>
+      <div class="full"><label class="f-label">Category</label><input class="f-input" id="f-group" placeholder="General"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modal-cancel-btn">Cancel</button>
+      <button class="btn btn-danger btn-ghost" id="modal-delete-btn" style="display:none;">Remove channel</button>
+      <button class="btn btn-primary" id="modal-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+</div><!-- /#app-root -->
+
+<script>
+(function(){
+  "use strict";
+  // ============================================================
+  // PASSWORD GATE — checked against a SHA-256 hash so the plain
+  // password isn't sitting in the page source. This only blocks
+  // casual access; anyone editing files directly on GitHub can
+  // still push, and a determined person could hash-crack a weak
+  // password locally, so don't rely on this as your only defense —
+  // your GitHub token permission is the real security boundary.
+  // ============================================================
+  var PASSWORD_HASH = "4279c736f72948ffebd76f2c9bce7bc1ca6c4737f8e6cfb2233dbaf775b5bbad";
+  var SESSION_KEY = "nexlive_admin_unlocked";
+
+  function sha256Hex(str){
+    var enc = new TextEncoder().encode(str);
+    return crypto.subtle.digest("SHA-256", enc).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("00"+b.toString(16)).slice(-2); }).join("");
+    });
+  }
+
+  var lockScreen = document.getElementById("lock-screen");
+  var appRoot = document.getElementById("app-root");
+  var lockInput = document.getElementById("lock-input");
+  var lockSubmit = document.getElementById("lock-submit");
+  var lockErr = document.getElementById("lock-err");
+
+  function unlock(){
+    lockScreen.classList.add("hide");
+    appRoot.classList.add("show");
+    try{ sessionStorage.setItem(SESSION_KEY, "1"); }catch(e){}
+    startApp();
+  }
+  function tryPassword(){
+    var val = lockInput.value;
+    if (!val){ return; }
+    lockSubmit.disabled = true;
+    sha256Hex(val).then(function(hash){
+      lockSubmit.disabled = false;
+      if (hash === PASSWORD_HASH){ unlock(); }
+      else { lockErr.textContent = "Wrong password."; lockInput.value = ""; lockInput.focus(); }
+    });
+  }
+  lockSubmit.addEventListener("click", tryPassword);
+  lockInput.addEventListener("keydown", function(e){ if (e.key === "Enter") tryPassword(); });
+
+  var alreadyUnlocked = false;
+  try{ alreadyUnlocked = sessionStorage.getItem(SESSION_KEY) === "1"; }catch(e){}
+  if (alreadyUnlocked){ unlock(); } else { lockInput.focus(); }
+
+  // ============================================================
+  // Everything below only runs once the password is correct.
+  // ============================================================
+  function startApp(){
+
+  // ============================================================
+  // CONFIG — kept identical to index.html so both files agree on
+  // where channels come from and how they're keyed.
+  // ============================================================
+  var PLAYLIST_URL = "https://iptv-org.github.io/iptv/index.m3u";
+  var ORDER_URL = "channel-order.json";
+  var ORDER_KEY = "https://iptv-org.github.io/iptv/index.m3u";
+  var BDIN_ORDER_KEY = "https://raw.githubusercontent.com/abusaeeidx/Mrgify-BDIX-IPTV/main/playlist.m3u";
+  var CUSTOM_DATA_URL = "channels-data.json";
+  var SETTINGS_KEY = "nexlive_admin_gh_settings";
+  var DRAFT_KEY = "nexlive_admin_draft";
+
+  var els = {};
+  ["conn-pill","conn-label","publish-btn","publish-label","unsaved-banner","unsaved-count",
+   "stat-total","stat-custom","stat-edited","stat-removed","stat-top",
+   "gh-owner","gh-repo","gh-branch","gh-path","gh-token",
+   "save-settings-btn","test-connection-btn","clear-settings-btn",
+   "top-list","results-list","search-input","search-hint","add-channel-btn",
+   "modal-backdrop","modal-title","modal-logo-preview","modal-name-preview",
+   "f-name","f-logo","f-url","f-group","modal-cancel-btn","modal-delete-btn","modal-save-btn",
+   "toast-wrap"].forEach(function(id){ els[id.replace(/-([a-z])/g, function(_,c){return c.toUpperCase();})] = document.getElementById(id); });
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  var playlistChannels = [];   // raw channels from the live m3u playlist (not yet overlaid)
+  var custom = { channels: [], edits: {}, removed: [], top: [] }; // the editable overlay -> channels-data.json
+  var ghSettings = loadSettings();
+  var editingKey = null;       // key of channel currently open in the modal, or null when adding new
+  var dirtyCount = 0;
+
+  // ============================================================
+  // SHARED LOGIC (mirrors index.html exactly so keys line up)
+  // ============================================================
+  function normalize(str){ return (str||"").toLowerCase().replace(/[""'']/g,'"').replace(/\s+/g," ").trim(); }
+  function normalizeLoose(str){
+    return normalize(str).replace(/\(.*?\)/g," ").replace(/\b(hd|fhd|uhd|4k|sd|hevc)\b/g," ").replace(/[^a-z0-9]+/g,"").trim();
+  }
+  function chanKey(ch){ return ch.__custom ? ("c:"+ch.id) : ("m:"+normalize(ch.name)); }
+
+  function parseM3U(text){
+    var lines = text.split(/\r?\n/); var channels = []; var pending = null;
+    var attrRe = /([a-zA-Z0-9\-]+)="([^"]*)"/g;
+    for (var i=0;i<lines.length;i++){
+      var line = lines[i].trim(); if (!line) continue;
+      if (line.indexOf("#EXTINF")===0){
+        var afterColon = line.substring(line.indexOf(":")+1);
+        var commaIdx = afterColon.lastIndexOf(",");
+        var attrsStr = commaIdx>=0 ? afterColon.substring(0,commaIdx) : afterColon;
+        var name = commaIdx>=0 ? afterColon.substring(commaIdx+1).trim() : "";
+        var attrs = {}; attrRe.lastIndex=0; var m;
+        while ((m=attrRe.exec(attrsStr))!==null) attrs[m[1].toLowerCase()]=m[2];
+        pending = {id: attrs["tvg-id"]||"", logo: attrs["tvg-logo"]||"", group: attrs["group-title"]||"General", name: name||attrs["tvg-name"]||"Unnamed Channel"};
+      } else if (line.indexOf("#")!==0 && pending){ pending.url=line; channels.push(pending); pending=null; }
+    }
+    return channels;
+  }
+  function applyChannelOrder(m3uChannels, orderList){
+    var byExact={},byNorm={},byLoose={};
+    m3uChannels.forEach(function(ch,idx){
+      if (!byExact[ch.name]) byExact[ch.name]=[]; byExact[ch.name].push(idx);
+      var n=normalize(ch.name); if(!byNorm[n])byNorm[n]=[]; byNorm[n].push(idx);
+      var l=normalizeLoose(ch.name); if(l){ if(!byLoose[l])byLoose[l]=[]; byLoose[l].push(idx); }
+    });
+    var used={};
+    function takeFirstUnused(indices){ if(!indices)return -1; for(var i=0;i<indices.length;i++) if(!used[indices[i]]) return indices[i]; return -1; }
+    var ordered=[]; var orderArr = Array.isArray(orderList)?orderList:[];
+    orderArr.forEach(function(entryName){
+      var idx=takeFirstUnused(byExact[entryName]);
+      if(idx===-1) idx=takeFirstUnused(byNorm[normalize(entryName)]);
+      if(idx===-1) idx=takeFirstUnused(byLoose[normalizeLoose(entryName)]);
+      if(idx!==-1){ used[idx]=true; ordered.push(m3uChannels[idx]); }
+    });
+    var leftovers=[]; m3uChannels.forEach(function(ch,idx){ if(!used[idx]) leftovers.push(ch); });
+    return ordered.concat(leftovers);
+  }
+
+  // ============================================================
+  // TOASTS
+  // ============================================================
+  function toast(msg, kind){
+    var t = document.createElement("div");
+    t.className = "toast " + (kind||"");
+    t.innerHTML = '<span class="dot"></span><span></span>';
+    t.querySelector("span:last-child").textContent = msg;
+    els.toastWrap.appendChild(t);
+    requestAnimationFrame(function(){ t.classList.add("show"); });
+    setTimeout(function(){ t.classList.remove("show"); setTimeout(function(){ t.remove(); }, 250); }, 4200);
+  }
+
+  // ============================================================
+  // SETTINGS (localStorage — token never leaves this browser except
+  // in the direct HTTPS request to api.github.com when you publish)
+  // ============================================================
+  function loadSettings(){
+    try{ var r = localStorage.getItem(SETTINGS_KEY); return r ? JSON.parse(r) : null; }catch(e){ return null; }
+  }
+  function saveSettingsToForm(){
+    if (!ghSettings) return;
+    els.ghOwner.value = ghSettings.owner || "";
+    els.ghRepo.value = ghSettings.repo || "";
+    els.ghBranch.value = ghSettings.branch || "main";
+    els.ghPath.value = ghSettings.path || "channels-data.json";
+    els.ghToken.value = ghSettings.token || "";
+  }
+  function readSettingsFromForm(){
+    return {
+      owner: els.ghOwner.value.trim(),
+      repo: els.ghRepo.value.trim(),
+      branch: (els.ghBranch.value.trim() || "main"),
+      path: (els.ghPath.value.trim() || "channels-data.json"),
+      token: els.ghToken.value.trim()
+    };
+  }
+  function settingsComplete(s){ return !!(s && s.owner && s.repo && s.branch && s.path && s.token); }
+
+  els.saveSettingsBtn.addEventListener("click", function(){
+    ghSettings = readSettingsFromForm();
+    if (!settingsComplete(ghSettings)){ toast("Fill in every field, including the token.", "err"); return; }
+    try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(ghSettings)); }catch(e){}
+    toast("Connection saved on this device.", "ok");
+    updateConnPill("unknown");
+    updatePublishAvailability();
+  });
+  els.clearSettingsBtn.addEventListener("click", function(){
+    ghSettings = null;
+    try{ localStorage.removeItem(SETTINGS_KEY); }catch(e){}
+    els.ghToken.value = "";
+    toast("Token forgotten on this device.", "ok");
+    updateConnPill("unknown");
+    updatePublishAvailability();
+  });
+  els.testConnectionBtn.addEventListener("click", function(){
+    var s = readSettingsFromForm();
+    if (!settingsComplete(s)){ toast("Fill in every field first.", "err"); return; }
+    els.testConnectionBtn.disabled = true;
+    ghApi(s, "GET", "").then(function(repoData){
+      els.testConnectionBtn.disabled = false;
+      var canPush = repoData && repoData.permissions && repoData.permissions.push;
+      if (canPush){ updateConnPill("ok", "Connected"); toast("Connected — this token can publish to " + s.owner + "/" + s.repo + ".", "ok"); }
+      else { updateConnPill("bad", "No write access"); toast("Connected, but this token can't push to this repo. Check its permissions.", "err"); }
+    }).catch(function(err){
+      els.testConnectionBtn.disabled = false;
+      updateConnPill("bad", "Failed");
+      toast("Couldn't connect: " + err.message, "err");
+    });
+  });
+
+  function updateConnPill(state, label){
+    els.connPill.className = "conn-pill" + (state==="ok"?" ok":state==="bad"?" bad":"");
+    els.connLabel.textContent = label || (state==="unknown" ? "Not verified" : "Not connected");
+  }
+
+  // ============================================================
+  // GITHUB API
+  // ============================================================
+  function b64EncodeUnicode(str){
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1){ return String.fromCharCode('0x'+p1); }));
+  }
+  function b64DecodeUnicode(str){
+    return decodeURIComponent(atob(str.replace(/\n/g,"")).split("").map(function(c){
+      return '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(""));
+  }
+  function ghApi(settings, method, pathSuffix, body){
+    var url = "https://api.github.com/repos/" + encodeURIComponent(settings.owner) + "/" + encodeURIComponent(settings.repo) + pathSuffix;
+    var opts = {
+      method: method,
+      headers: {
+        "Authorization": "Bearer " + settings.token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    };
+    if (body){ opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    return fetch(url, opts).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(data){
+        if (!r.ok){ throw new Error((data && data.message) || ("GitHub responded " + r.status)); }
+        return data;
+      });
+    });
+  }
+  function fetchFileFromGitHub(settings){
+    return ghApi(settings, "GET", "/contents/" + settings.path.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(settings.branch) + "&t=" + Date.now());
+  }
+
+  // ============================================================
+  // DRAFT (autosave working copy locally so a refresh never loses work)
+  // ============================================================
+  function saveDraft(){
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(custom)); }catch(e){}
+  }
+  function loadDraft(){
+    try{ var r = localStorage.getItem(DRAFT_KEY); return r ? JSON.parse(r) : null; }catch(e){ return null; }
+  }
+
+  // ============================================================
+  // LOAD everything: live playlist + order file + current published
+  // channels-data.json (or local draft if one exists)
+  // ============================================================
+  function boot(){
+    saveSettingsToForm();
+    updateConnPill("unknown");
+    updatePublishAvailability();
+
+    els.resultsList.innerHTML = '<div class="loading-inline"><span class="spinner-sm"></span>Loading the live channel list…</div>';
+
+    Promise.all([
+      fetch(PLAYLIST_URL, {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error("playlist"); return r.text(); }),
+      fetch(ORDER_URL, {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error("order"); return r.json(); }).catch(function(){ return null; }),
+      loadPublishedCustomData()
+    ]).then(function(results){
+      var parsed = parseM3U(results[0]);
+      var orderData = results[1];
+      var orderList = (orderData && orderData[ORDER_KEY]) ? orderData[ORDER_KEY] : null;
+      var ordered = orderList ? applyChannelOrder(parsed, orderList) : parsed;
+      var seen={}, deduped=[];
+      ordered.forEach(function(ch){ var k=ch.name+"|"+ch.url; if(!seen[k]){ seen[k]=true; deduped.push(ch); } });
+      playlistChannels = deduped;
+
+      var draft = loadDraft();
+      var published = results[2] || { channels:[], edits:{}, removed:[], top:[] };
+      if (draft && JSON.stringify(draft) !== JSON.stringify(published)){
+        custom = draft;
+        els.unsavedBanner.classList.add("show");
+        toast("Restored your unpublished draft from this device.", "ok");
+      } else {
+        custom = published;
+      }
+      renderAll();
+    }).catch(function(err){
+      els.resultsList.innerHTML = '<div class="row-empty">Couldn\u2019t load the live channel list (' + (err.message||"unknown error") + '). Check your connection and reload.</div>';
+    });
+  }
+
+  function loadPublishedCustomData(){
+    if (settingsComplete(ghSettings)){
+      return fetchFileFromGitHub(ghSettings).then(function(fileData){
+        var text = b64DecodeUnicode(fileData.content);
+        return JSON.parse(text);
+      }).catch(function(err){
+        toast("Couldn't load channels-data.json from GitHub (" + err.message + "). Falling back to the copy next to index.html.", "err");
+        return fetchLocalCustomData();
+      });
+    }
+    return fetchLocalCustomData();
+  }
+  function fetchLocalCustomData(){
+    return fetch(CUSTOM_DATA_URL, {cache:"no-store"}).then(function(r){
+      if (!r.ok) return { channels:[], edits:{}, removed:[], top:[] };
+      return r.json();
+    }).catch(function(){ return { channels:[], edits:{}, removed:[], top:[] }; });
+  }
+
+  // ============================================================
+  // MERGED VIEW (playlist + custom overlay) — used for search + top list
+  // ============================================================
+  function mergedChannels(){
+    var removedSet = {}; (custom.removed||[]).forEach(function(k){ removedSet[k]=true; });
+    var list = [];
+    playlistChannels.forEach(function(ch){
+      var key = chanKey(ch);
+      if (removedSet[key]) return;
+      var e = custom.edits[key];
+      list.push({
+        id: null, __custom:false, __key:key,
+        name: (e&&e.name)||ch.name, logo: (e&&e.logo!==undefined)?e.logo:ch.logo,
+        url: (e&&e.url)||ch.url, group: (e&&e.group)||ch.group,
+        __edited: !!e
+      });
+    });
+    (custom.channels||[]).forEach(function(c){
+      var key = "c:"+c.id;
+      if (removedSet[key]) return;
+      var e = custom.edits[key];
+      list.push({
+        id: c.id, __custom:true, __key:key,
+        name: (e&&e.name)||c.name, logo: (e&&e.logo!==undefined)?e.logo:c.logo,
+        url: (e&&e.url)||c.url, group: (e&&e.group)||c.group||"General",
+        __edited: !!e
+      });
+    });
+    return list;
+  }
+
+  // ============================================================
+  // DIRTY TRACKING / STATS
+  // ============================================================
+  function markDirty(){
+    saveDraft();
+    els.unsavedBanner.classList.add("show");
+    renderStats();
+  }
+  function renderStats(){
+    var visible = mergedChannels().length;
+    els.statTotal.textContent = visible;
+    els.statCustom.textContent = (custom.channels||[]).length;
+    els.statEdited.textContent = Object.keys(custom.edits||{}).length;
+    els.statRemoved.textContent = (custom.removed||[]).length;
+    els.statTop.textContent = (custom.top||[]).length;
+    var dirty = (custom.channels||[]).length + Object.keys(custom.edits||{}).length + (custom.removed||[]).length + (custom.top||[]).length;
+    els.unsavedCount.textContent = dirty;
+    updatePublishAvailability();
+  }
+  function updatePublishAvailability(){
+    els.publishBtn.disabled = !settingsComplete(ghSettings);
+  }
+
+  // ============================================================
+  // TOP LIST (pinned channels + reordering)
+  // ============================================================
+  function renderTopList(){
+    var byKey = {}; mergedChannels().forEach(function(ch){ byKey[ch.__key] = ch; });
+    var top = custom.top || [];
+    els.topList.innerHTML = "";
+    if (!top.length){
+      els.topList.innerHTML = '<div class="row-empty">No channel pinned yet — use \u201cPin to top\u201d on any channel below.</div>';
+      return;
+    }
+    top.forEach(function(key, i){
+      var ch = byKey[key];
+      var row = document.createElement("div");
+      row.className = "ch-row top-row";
+      var rank = document.createElement("div"); rank.className="rank"; rank.textContent = (i+1);
+      row.appendChild(rank);
+      row.appendChild(buildLogoEl(ch));
+      var meta = document.createElement("div"); meta.className="meta";
+      meta.innerHTML = '<div class="nm"></div><div class="sub"></div>';
+      meta.querySelector(".nm").textContent = ch ? ch.name : "(channel no longer available)";
+      meta.querySelector(".sub").textContent = ch ? (ch.group||"") : "This channel disappeared from the playlist";
+      row.appendChild(meta);
+      var actions = document.createElement("div"); actions.className="actions";
+      actions.appendChild(iconBtn("↑", "Move up", i===0, function(){ moveTop(i,-1); }));
+      actions.appendChild(iconBtn("↓", "Move down", i===top.length-1, function(){ moveTop(i,1); }));
+      actions.appendChild(iconBtn("✕", "Unpin", false, function(){ custom.top.splice(i,1); markDirty(); renderTopList(); renderResults(); }));
+      row.appendChild(actions);
+      els.topList.appendChild(row);
+    });
+  }
+  function moveTop(i, dir){
+    var j = i+dir; if (j<0||j>=custom.top.length) return;
+    var tmp = custom.top[i]; custom.top[i]=custom.top[j]; custom.top[j]=tmp;
+    markDirty(); renderTopList();
+  }
+  function iconBtn(glyph, title, disabled, onClick){
+    var b = document.createElement("button");
+    b.className = "btn btn-ghost btn-icon"; b.title = title; b.textContent = glyph; b.disabled = !!disabled;
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  // ============================================================
+  // RESULTS LIST (search)
+  // ============================================================
+  function buildLogoEl(ch){
+    var wrap = document.createElement("div"); wrap.className = "logo";
+    if (ch && ch.logo && /^https?:\/\//i.test(ch.logo)){
+      var img = document.createElement("img"); img.loading="lazy"; img.referrerPolicy="no-referrer"; img.alt=""; img.src=ch.logo;
+      img.onerror = function(){ wrap.innerHTML=""; wrap.appendChild(tvIcon()); };
+      wrap.appendChild(img);
+    } else wrap.appendChild(tvIcon());
+    return wrap;
+  }
+  function tvIcon(){
+    var s = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    s.setAttribute("width","20"); s.setAttribute("height","20"); s.setAttribute("viewBox","0 0 24 24"); s.setAttribute("fill","none");
+    s.innerHTML = '<rect x="3" y="6" width="18" height="13" rx="2" stroke="#666" stroke-width="1.6"/><path d="M8 3l4 3 4-3" stroke="#666" stroke-width="1.6" stroke-linecap="round"/>';
+    return s;
+  }
+
+  function renderResults(){
+    var q = normalize(els.searchInput.value);
+    var all = mergedChannels();
+    var list;
+    if (!q){
+      list = all.filter(function(ch){ return ch.__custom || ch.__edited; }).slice(0, 60);
+      els.searchHint.textContent = list.length
+        ? "Showing your added & edited channels. Type to search all " + all.length + " channels."
+        : "Type to search all " + all.length + " channels — or add a new one.";
+    } else {
+      list = all.filter(function(ch){ return normalize(ch.name).indexOf(q) !== -1; }).slice(0, 80);
+      els.searchHint.textContent = list.length + " match" + (list.length===1?"":"es") + (list.length===80 ? " (showing first 80 — refine your search)" : "");
+    }
+    els.resultsList.innerHTML = "";
+    if (!list.length){
+      els.resultsList.innerHTML = '<div class="row-empty">No channels found. Try a different search, or add it as a new channel.</div>';
+      return;
+    }
+    var topSet = {}; (custom.top||[]).forEach(function(k){ topSet[k]=true; });
+    var frag = document.createDocumentFragment();
+    list.forEach(function(ch){
+      var row = document.createElement("div"); row.className = "ch-row";
+      row.appendChild(buildLogoEl(ch));
+      var meta = document.createElement("div"); meta.className = "meta";
+      var nm = document.createElement("div"); nm.className="nm"; nm.textContent = ch.name;
+      var sub = document.createElement("div"); sub.className="sub";
+      sub.innerHTML = '<span>'+escapeHtml(ch.group||"General")+'</span>';
+      if (ch.__custom){ var b1=document.createElement("span"); b1.className="badge custom"; b1.textContent="Custom"; sub.appendChild(b1); }
+      if (ch.__edited){ var b2=document.createElement("span"); b2.className="badge edited"; b2.textContent="Edited"; sub.appendChild(b2); }
+      if (topSet[ch.__key]){ var b3=document.createElement("span"); b3.className="badge top"; b3.textContent="Pinned"; sub.appendChild(b3); }
+      meta.appendChild(nm); meta.appendChild(sub);
+      row.appendChild(meta);
+      var actions = document.createElement("div"); actions.className = "actions";
+      var pinBtn = document.createElement("button");
+      pinBtn.className = "btn btn-ghost btn-sm"; pinBtn.textContent = topSet[ch.__key] ? "Unpin" : "Pin to top";
+      pinBtn.addEventListener("click", function(){ togglePin(ch); });
+      var editBtn = document.createElement("button");
+      editBtn.className = "btn btn-ghost btn-icon"; editBtn.title = "Edit";
+      editBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 20h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+      editBtn.addEventListener("click", function(){ openEditModal(ch); });
+      actions.appendChild(pinBtn); actions.appendChild(editBtn);
+      row.appendChild(actions);
+      frag.appendChild(row);
+    });
+    els.resultsList.appendChild(frag);
+  }
+  function escapeHtml(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+  function togglePin(ch){
+    custom.top = custom.top || [];
+    var i = custom.top.indexOf(ch.__key);
+    if (i===-1) custom.top.unshift(ch.__key); else custom.top.splice(i,1);
+    markDirty(); renderTopList(); renderResults();
+  }
+
+  els.searchInput.addEventListener("input", debounce(renderResults, 120));
+  function debounce(fn, ms){ var t; return function(){ clearTimeout(t); var a=arguments; t=setTimeout(function(){ fn.apply(null,a); }, ms); }; }
+
+  // ============================================================
+  // ADD / EDIT MODAL
+  // ============================================================
+  els.addChannelBtn.addEventListener("click", function(){ openAddModal(); });
+  els.modalCancelBtn.addEventListener("click", closeModal);
+  els.modalBackdrop.addEventListener("click", function(e){ if (e.target===els.modalBackdrop) closeModal(); });
+
+  function openAddModal(){
+    editingKey = null;
+    els.modalTitle.textContent = "Add channel";
+    els.fName.value = ""; els.fLogo.value = ""; els.fUrl.value = ""; els.fGroup.value = "";
+    els.modalDeleteBtn.style.display = "none";
+    updateModalPreview();
+    els.modalBackdrop.classList.add("open");
+    els.fName.focus();
+  }
+  function openEditModal(ch){
+    editingKey = ch.__key;
+    els.modalTitle.textContent = "Edit channel";
+    els.fName.value = ch.name || ""; els.fLogo.value = ch.logo || ""; els.fUrl.value = ch.url || ""; els.fGroup.value = ch.group || "";
+    els.modalDeleteBtn.style.display = "inline-flex";
+    els.modalDeleteBtn.textContent = ch.__custom ? "Delete channel" : "Remove from site";
+    updateModalPreview();
+    els.modalBackdrop.classList.add("open");
+  }
+  function closeModal(){ els.modalBackdrop.classList.remove("open"); editingKey = null; }
+
+  [els.fName, els.fLogo].forEach(function(inp){ inp.addEventListener("input", updateModalPreview); });
+  function updateModalPreview(){
+    els.modalNamePreview.textContent = els.fName.value.trim() || "New channel";
+    els.modalLogoPreview.innerHTML = "";
+    var url = els.fLogo.value.trim();
+    if (/^https?:\/\//i.test(url)){
+      var img = document.createElement("img"); img.src = url; img.alt="";
+      img.onerror = function(){ els.modalLogoPreview.innerHTML=""; els.modalLogoPreview.appendChild(tvIcon()); };
+      els.modalLogoPreview.appendChild(img);
+    } else els.modalLogoPreview.appendChild(tvIcon());
+  }
+
+  els.modalSaveBtn.addEventListener("click", function(){
+    var name = els.fName.value.trim();
+    var url = els.fUrl.value.trim();
+    var logo = els.fLogo.value.trim();
+    var group = els.fGroup.value.trim() || "General";
+    if (!name){ toast("Channel name is required.", "err"); return; }
+    if (!url){ toast("Stream link is required.", "err"); return; }
+
+    if (editingKey === null){
+      // brand-new custom channel
+      var id = "c" + Date.now() + Math.floor(Math.random()*1000);
+      custom.channels = custom.channels || [];
+      custom.channels.push({ id: id, name: name, logo: logo, url: url, group: group });
+      toast("Channel added. Remember to Publish to make it live.", "ok");
+    } else if (editingKey.indexOf("c:") === 0){
+      // editing a custom channel directly
+      var cid = editingKey.slice(2);
+      var found = (custom.channels||[]).find(function(c){ return c.id === cid; });
+      if (found){ found.name=name; found.logo=logo; found.url=url; found.group=group; }
+      toast("Channel updated.", "ok");
+    } else {
+      // editing a playlist channel -> store as an override
+      custom.edits = custom.edits || {};
+      custom.edits[editingKey] = { name:name, logo:logo, url:url, group:group };
+      toast("Edit saved as an override.", "ok");
+    }
+    markDirty(); renderAll(); closeModal();
+  });
+
+  els.modalDeleteBtn.addEventListener("click", function(){
+    if (editingKey === null) return;
+    if (editingKey.indexOf("c:") === 0){
+      var cid = editingKey.slice(2);
+      custom.channels = (custom.channels||[]).filter(function(c){ return c.id !== cid; });
+      delete (custom.edits||{})[editingKey];
+    } else {
+      custom.removed = custom.removed || [];
+      if (custom.removed.indexOf(editingKey) === -1) custom.removed.push(editingKey);
+      delete (custom.edits||{})[editingKey];
+    }
+    custom.top = (custom.top||[]).filter(function(k){ return k !== editingKey; });
+    toast("Channel removed from the site.", "ok");
+    markDirty(); renderAll(); closeModal();
+  });
+
+  // ============================================================
+  // RENDER ALL
+  // ============================================================
+  function renderAll(){ renderStats(); renderTopList(); renderResults(); }
+
+  // ============================================================
+  // PUBLISH
+  // ============================================================
+  els.publishBtn.addEventListener("click", function(){
+    if (!settingsComplete(ghSettings)){ toast("Connect GitHub first (see the panel above).", "err"); return; }
+    els.publishBtn.disabled = true;
+    els.publishLabel.textContent = "Publishing…";
+    fetchFileFromGitHub(ghSettings).then(function(existing){
+      return doPut(existing.sha);
+    }).catch(function(err){
+      // file might not exist yet on first publish
+      if (/not found|404/i.test(err.message)) return doPut(null);
+      throw err;
+    }).then(function(){
+      toast("Published! The site will show your changes on next load.", "ok");
+      els.unsavedBanner.classList.remove("show");
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+      updateConnPill("ok", "Connected");
+    }).catch(function(err){
+      toast("Publish failed: " + err.message, "err");
+      updateConnPill("bad", "Publish failed");
+    }).then(function(){
+      els.publishBtn.disabled = false;
+      updatePublishAvailability();
+      els.publishLabel.textContent = "Publish";
+    });
+  });
+
+  function doPut(sha){
+    var content = JSON.stringify(custom, null, 2);
+    var body = {
+      message: "Update channels-data.json via NexLive admin panel",
+      content: b64EncodeUnicode(content),
+      branch: ghSettings.branch
+    };
+    if (sha) body.sha = sha;
+    return ghApi(ghSettings, "PUT", "/contents/" + ghSettings.path.split("/").map(encodeURIComponent).join("/"), body);
+  }
+
+  boot();
+  } // end startApp
+})();
+</script>
+</body>
+</html>
