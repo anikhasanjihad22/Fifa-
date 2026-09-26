@@ -1,6 +1,15 @@
 {
   "channels": [],
-  "edits": {},
+  "edits": {
+    "m:rtv (bangladesh) (720p)": {
+      "name": "RTV (Bangladesh)",
+      "logo": "https://i.imgur.com/yu8ugqt.png",
+      "url": "https://tvsen5.aynaott.com/RtvHD/index.m3u8",
+      "group": "General"
+    }
+  },
   "removed": [],
-  "top": []
+  "top": [
+    "m:rtv (bangladesh) (720p)"
+  ]
 }
