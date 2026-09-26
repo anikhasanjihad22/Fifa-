@@ -1,5 +1,13 @@
 {
-  "channels": [],
+  "channels": [
+    {
+      "id": "c1790445534583596",
+      "name": "Jamuna TV",
+      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPkJqU2agviE5jFR5hnfXkKxPgGclhNbpAsPZOVeVf0A&s=10",
+      "url": "https://tvsen6.aynaott.com/KGdZEdA7qQ43dmPkgk1j/tracks-v1a1/mono.ts.m3u8",
+      "group": "Bangladeshi Channel"
+    }
+  ],
   "edits": {
     "m:rtv (bangladesh) (720p)": {
       "name": "RTV (Bangladesh)",
