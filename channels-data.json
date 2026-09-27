@@ -3,6 +3,12 @@
   "edits": {},
   "removed": [],
   "top": [],
-  "playlists": [],
+  "playlists": [
+    {
+      "id": "p1790543006152",
+      "name": "Bangladeshi Channel",
+      "url": "https://github.com/abusaeeidx/Mrgify-BDIX-IPTV/raw/main/playlist.m3u"
+    }
+  ],
   "extraSources": {}
 }
