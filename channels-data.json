@@ -34,14 +34,21 @@
       "logo": "https://i.postimg.cc/T3f1NQyV/20260524-024937.png",
       "url": "https://live.kwikmotion.com/sharjahtvquranlive/shqurantv.smil/sharjahtvquranpublish/shqurantv_source/chunks.m3u8",
       "group": "Religious"
+    },
+    "m:g series drama": {
+      "name": "G Series Drama",
+      "logo": "https://imglink.cc/cdn/1_dUKmt1Oe.png",
+      "url": "https://vods2.aynaott.com/gseriesDrama/index.m3u8",
+      "group": "Bangladesh"
     }
   },
   "removed": [],
   "top": [
     "m:zee bangla hd (720p)",
     "m:[bd] jamuna tv",
-    "m:sony max hd",
     "m:jalsha movies",
+    "m:sony max hd",
+    "m:g series drama",
     "m:quran tv"
   ],
   "playlists": [
