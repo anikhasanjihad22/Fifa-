@@ -6,11 +6,20 @@
       "logo": "https://imglink.cc/cdn/hEzUhoTW3x.jpg",
       "url": "https://box.bbaria.net:8083/Jalsha_Movie/tracks-v1a1/mono.m3u8",
       "group": "Entertainment"
+    },
+    {
+      "id": "c1790598709165139180",
+      "name": "Sony Max HD",
+      "logo": "https://www.sonypicturesnetworks.com/images/logos/Sony_MAX-HD_WHITE.png",
+      "url": "https://drk6xq0vhn.gpcdn.net/live/max_hd_abr/live/max_hd_720/chunks.m3u8",
+      "group": "Entertainment"
     }
   ],
   "edits": {},
   "removed": [],
-  "top": [],
+  "top": [
+    "m:jalsha movies"
+  ],
   "playlists": [
     {
       "id": "p1790562757108",
