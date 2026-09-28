@@ -28,6 +28,12 @@
       "logo": "https://assets-prod.services.toffeelive.com/f_png,w_300,q_85/PiL635oBEef-9-uV2uCe/posters/36f380e0-6c71-4b27-a73b-2afb3ce7e982.png",
       "url": "https://tvsen6.aynaott.com/KGdZEdA7qQ43dmPkgk1j/tracks-v1a1/mono.ts.m3u8",
       "group": "News"
+    },
+    "m:quran tv": {
+      "name": "Quran TV",
+      "logo": "https://i.postimg.cc/T3f1NQyV/20260524-024937.png",
+      "url": "https://live.kwikmotion.com/sharjahtvquranlive/shqurantv.smil/sharjahtvquranpublish/shqurantv_source/chunks.m3u8",
+      "group": "Religious"
     }
   },
   "removed": [],
@@ -35,7 +41,8 @@
     "m:zee bangla hd (720p)",
     "m:[bd] jamuna tv",
     "m:sony max hd",
-    "m:jalsha movies"
+    "m:jalsha movies",
+    "m:quran tv"
   ],
   "playlists": [
     {
