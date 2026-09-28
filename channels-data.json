@@ -5,9 +5,10 @@
   "top": [],
   "playlists": [
     {
-      "id": "p1790543006152",
-      "name": "Bangladeshi Channel",
-      "url": "https://github.com/abusaeeidx/Mrgify-BDIX-IPTV/raw/main/playlist.m3u"
+      "id": "p1790562757108",
+      "name": "Bangladeshi",
+      "url": "https://raw.githubusercontent.com/abusaeeidx/Mrgify-BDIX-IPTV/main/playlist.m3u",
+      "enabled": true
     }
   ],
   "extraSources": {}
