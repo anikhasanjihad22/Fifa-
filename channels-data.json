@@ -20,13 +20,6 @@
       "logo": "https://i.postimg.cc/T3f1NQyV/20260524-024937.png",
       "url": "https://live.kwikmotion.com/sharjahtvquranlive/shqurantv.smil/sharjahtvquranpublish/shqurantv_source/chunks.m3u8",
       "group": "Religion"
-    },
-    {
-      "id": "c1790677869447348810",
-      "name": "Somoy TV",
-      "logo": "",
-      "url": "https://prod-linear-media.toffeelive.com/cdn/live/somoy_tv/playlist.m3u8",
-      "group": "News"
     }
   ],
   "edits": {
@@ -51,7 +44,6 @@
   },
   "removed": [],
   "top": [
-    "m:somoy tv",
     "m:zee bangla hd (720p)",
     "m:[bd] jamuna tv",
     "m:jalsha movies",
