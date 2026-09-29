@@ -40,10 +40,17 @@
       "logo": "https://imglink.cc/cdn/1_dUKmt1Oe.png",
       "url": "https://vods2.aynaott.com/gseriesDrama/tracks-v1a1/mono.ts.m3u8",
       "group": "Bangladesh"
+    },
+    "m:t sports (1080p)": {
+      "name": "T Sports (1080p)",
+      "logo": "https://i.imgur.com/2JzlorD.png",
+      "url": "https://trs1.aynaott.com/tsports/tracks-v1a1/mono.ts.m3u8",
+      "group": "Sports"
     }
   },
   "removed": [],
   "top": [
+    "m:t sports (1080p)",
     "m:zee bangla hd (720p)",
     "m:[bd] jamuna tv",
     "m:jalsha movies",
@@ -68,7 +75,7 @@
       "id": "p1790678308540",
       "name": "General",
       "url": "https://amg00793-amg00793c6-firetv-us-4067.playouts.now.amagi.tv/playlist.m3u8",
-      "enabled": true
+      "enabled": false
     }
   ],
   "extraSources": {}
