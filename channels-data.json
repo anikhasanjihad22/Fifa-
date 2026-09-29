@@ -63,6 +63,12 @@
       "name": "Bangladeshi",
       "url": "https://raw.githubusercontent.com/Shadmanislam/bdiptv/master/BD%20IPTV.m3u",
       "enabled": true
+    },
+    {
+      "id": "p1790678308540",
+      "name": "General",
+      "url": "https://amg00793-amg00793c6-firetv-us-4067.playouts.now.amagi.tv/playlist.m3u8",
+      "enabled": true
     }
   ],
   "extraSources": {}
