@@ -65,6 +65,12 @@
       "logo": "https://tv.moviemasti.net/assets/images/SOMOY.TV.HD1787251571.png?v=1",
       "url": "https://tv.moviemasti.net:8443/SOMOY.TV.HD/index.m3u8?token=ce4cdb6ac00d28477230492b3dd34ce6729093ca-d72e3582611b53cf2268dbbabb09db6e-1791072350-1791028850",
       "group": "Bangla"
+    },
+    "m:bein sports 3": {
+      "name": "Bein sports 3",
+      "logo": "https://prod98.togglestatic.com/shain/v1/dataservice/ResizeImage/$value?Format=%27png%27&Quality=85&ImageId=%279624604%27&EntityType=%27Item%27&EntityId=%27572418%27&Width=1920&Height=1080",
+      "url": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/q4u5nwaogz/out/v1/18de6d3e65934f3a8de4358e69eab86c/cenc_audio_5_0_18597409.mp4",
+      "group": "Sports"
     }
   },
   "removed": [],
