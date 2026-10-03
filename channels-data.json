@@ -69,15 +69,15 @@
     "m:bein sports 3": {
       "name": "Bein sports 3",
       "logo": "https://prod98.togglestatic.com/shain/v1/dataservice/ResizeImage/$value?Format=%27png%27&Quality=85&ImageId=%279624604%27&EntityType=%27Item%27&EntityId=%27572418%27&Width=1920&Height=1080",
-      "url": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/q4u5nwaogz/out/v1/18de6d3e65934f3a8de4358e69eab86c/cenc_audio_5_0_18597409.mp4?m=1753177235",
+      "url": "https://live.api-live.workers.dev/?id=beIN3",
       "group": "Sports"
     }
   },
   "removed": [],
   "top": [
     "m:bein sports 3",
-    "m:zee bangla hd (1080p)",
     "m:somoy.tv.hd",
+    "m:zee bangla hd (1080p)",
     "m:[bd] jamuna tv",
     "m:sony max hd",
     "m:g series drama",
