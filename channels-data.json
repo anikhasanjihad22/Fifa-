@@ -80,12 +80,18 @@
       "id": "p1790678308540",
       "name": "General",
       "url": "https://amg00793-amg00793c6-firetv-us-4067.playouts.now.amagi.tv/playlist.m3u8",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "p1790888194244",
       "name": "Bangladeshi",
       "url": "https://raw.githubusercontent.com/ahan443/FAST-IPTV/refs/heads/main/paidserver.m3u",
+      "enabled": false
+    },
+    {
+      "id": "p1791029149837",
+      "name": "",
+      "url": "https://tv.moviemasti.net/m3u.php",
       "enabled": true
     }
   ],
