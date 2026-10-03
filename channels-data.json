@@ -52,13 +52,19 @@
       "logo": "https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_ZEE_BANGLA/images/LOGO_HD/LOGO_HD_image.png",
       "url": "https://drk6xq0vhn.gpcdn.net/live/zee_bangla_720/chunks.m3u8",
       "group": "Entertainment"
+    },
+    "m:somoy.tv.hd": {
+      "name": "SOMOY TV",
+      "logo": "https://tv.moviemasti.net/assets/images/SOMOY.TV.HD1787251571.png?v=1",
+      "url": "https://tv.moviemasti.net:8443/SOMOY.TV.HD/index.m3u8?token=ce4cdb6ac00d28477230492b3dd34ce6729093ca-d72e3582611b53cf2268dbbabb09db6e-1791072350-1791028850",
+      "group": "Bangla"
     }
   },
   "removed": [],
   "top": [
     "m:zee bangla hd (1080p)",
+    "m:somoy.tv.hd",
     "m:[bd] jamuna tv",
-    "m:jalsha movies",
     "m:sony max hd",
     "m:g series drama",
     "m:quran tv"
